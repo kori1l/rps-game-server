@@ -1,0 +1,25 @@
+# Maven & build outputs
+/target
+
+# IDE & tooling
+/.idea
+/.vscode
+*.iml
+
+# VCS
+/.git
+.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+!Dockerfile
+.dockerignore
+
+# Maven wrapper cache
+/.mvn
+/mvnw
+/mvnw.cmd

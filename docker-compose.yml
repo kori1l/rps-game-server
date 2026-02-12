@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  rps-game-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rps-game-server:local
+    container_name: rps-game-server
+    ports:
+      - "8080:8080"   # game (netty tcp)
+      - "8081:8081"   # spring actuator/http
+    environment:
+      - RPS_PORT=8080
+      - SERVER_PORT=8081
+      - JAVA_OPTS=-Xms128m -Xmx256m
+    restart: unless-stopped
