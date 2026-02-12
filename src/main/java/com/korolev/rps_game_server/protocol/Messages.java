@@ -3,18 +3,19 @@ package com.korolev.rps_game_server.protocol;
 public final class Messages {
     private Messages() {}
 
-    public static final String RULES =
+    public static final String LOGO =
             """
-                    Rules:\r
-                      ROCK beats SCISSORS\r
-                      SCISSORS beat PAPER\r
-                      PAPER beats ROCK\r
-                    \r
-                    Same moves - DRAW (round is replayed).\r
+                     ____  ____  ____\r
+                    |  _ \\|  _ \\/ ___|\r
+                    | |_) | |_) \\___ \\\r
+                    |  _ <|  __/ ___) |\r
+                    |_| \\_\\_|   |____/\r
                     """;
 
     public static final String WELCOME =
-            "Welcome to Rock-Paper-Scissors!\r\n" + RULES + "\r\nEnter your nickname:\r\n";
+            LOGO
+            + "\r\nWelcome to Rock-Paper-Scissors!\r\n"
+            + "\r\nEnter your nickname (or type /help):\r\n";
     public static final String EMPTY_INPUT = "Empty input. Try again:\r\n";
     public static final String WAITING_OPPONENT = "Still waiting for an opponent...\r\n";
 

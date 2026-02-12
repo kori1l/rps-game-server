@@ -32,7 +32,7 @@ class RpsServerHandlerTest {
         EmbeddedChannel ch = newChannel(mm);
 
         String out = takeAllOutbound(ch);
-        assertTrue(out.contains(Messages.WELCOME.trim()));
+        assertTrue(out.contains("Enter your nickname"));
         assertNotNull(ch.attr(PLAYER_CTX).get());
         assertTrue(ch.isActive());
     }

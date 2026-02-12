@@ -65,7 +65,7 @@ After connecting, the server will prompt you to enter a nickname.
 - `/quit` — disconnect from the server.
 
 ### Server messages (examples)
-- `Welcome! Enter your nickname:` — prompt to enter a nickname.
+- `Enter your nickname:` — prompt to enter a nickname.
 - `Hi, <nick>! Waiting for an opponent...` — you’re queued for a match.
 - `Opponent found: <nick>. Type ROCK/PAPER/SCISSORS:` — the match has started, enter your move.
 - `Invalid move. Type ROCK/PAPER/SCISSORS.` — invalid input.
@@ -86,11 +86,7 @@ Same moves — `DRAW` (round is replayed).
 
 ## Healthcheck (Actuator)
 - Endpoint: `GET http://localhost:8081/actuator/health`
-- Details are enabled (`show-details: always`). Custom `NettyEventLoopHealthIndicator` reports:
-  - boss/worker states (`shuttingDown`, `terminated`),
-  - ability to schedule a task on the event loop (a quick `submit()` with timeout),
-  - event loop scheduling lag measurement `worker.lagMs`.
-Status `DOWN` indicates problems with the event loop or that Netty is stopping.
+- Includes custom `NettyEventLoopHealthIndicator`
 
 ## Logs
 Logging is configured via Logback (`src/main/resources/logback-spring.xml`) and includes MDC markers: `ch` (channel), `nick` (nickname), `sess` (pair of players).
@@ -99,7 +95,6 @@ Logging is configured via Logback (`src/main/resources/logback-spring.xml`) and 
 ```bash
 mvn test
 ```
-Covers core gameplay logic, timeouts handling, command parser, and the server handler.
 
 ## Troubleshooting
 - Port already in use: change `rps.port`/`server.port` or free the port.
@@ -110,17 +105,17 @@ Covers core gameplay logic, timeouts handling, command parser, and the server ha
 - Actuator not accessible: verify it’s listening on 8081 and not blocked by a firewall.
 
 ## Example session (telnet)
-```
+```text
 $ telnet localhost 8080
-Welcome to Rock-Paper-Scissors!
-Rules:
-  ROCK beats SCISSORS
-  SCISSORS beat PAPER
-  PAPER beats ROCK
-
-Same moves - DRAW (round is replayed).
-
-Enter your nickname:
+ ____  ____  ____                                                                                                                                                                                                                   
+|  _ \|  _ \/ ___|                                                                                                                                                                                                                  
+| |_) | |_) \___ \                                                                                                                                                                                                                  
+|  _ <|  __/ ___) |                                                                                                                                                                                                                 
+|_| \_\_|   |____/                                                                                                                                                                                                                  
+                                                                                                                                                                                                                                    
+Welcome to Rock-Paper-Scissors!                                                                                                                                                                                                     
+                                                                                                                                                                                                                                    
+Enter your nickname (or type /help): 
 player1
 Hi, player1! Waiting for an opponent...
 Opponent found: player2
