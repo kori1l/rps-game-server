@@ -1,6 +1,7 @@
 package com.korolev.rps_game_server.net;
 
 import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.EventExecutor;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
@@ -55,7 +56,7 @@ public class NettyEventLoopHealthIndicator implements HealthIndicator {
 
         // Prevent deadlock if health check is somehow called from the event loop itself
         boolean alreadyInLoop = false;
-        for (io.netty.util.concurrent.EventExecutor executor : group) {
+        for (EventExecutor executor : group) {
             if (executor.inEventLoop()) {
                 alreadyInLoop = true;
                 break;

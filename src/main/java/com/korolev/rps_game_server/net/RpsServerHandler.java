@@ -16,7 +16,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.AttributeKey;
 import org.slf4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +24,9 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
 
     private static final Logger log = LoggerFactory.getLogger(RpsServerHandler.class);
 
-    public static final AttributeKey<PlayerContext> PLAYER_CTX = AttributeKey.valueOf("playerCtx");
-    public static final AttributeKey<GameSession> SESSION = AttributeKey.valueOf("session");
+    public static final String IDLE_HANDLER_NAME = "idle";
 
-    private static final String IDLE_HANDLER_NAME = "idle";
-
-    private static final int NICK_IDLE_SECONDS = 180;
+    public static final int NICK_IDLE_SECONDS = 180;
     private static final int WAIT_IDLE_SECONDS = 180;
     private static final int GAME_IDLE_SECONDS = 120;
 
@@ -43,7 +39,7 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         PlayerContext pc = new PlayerContext();
-        ctx.channel().attr(PLAYER_CTX).set(pc);
+        ctx.channel().attr(Attrs.PLAYER_CTX).set(pc);
 
         setIdleTimeout(ctx.channel(), NICK_IDLE_SECONDS);
 
@@ -53,10 +49,10 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-        PlayerContext pc = ctx.channel().attr(PLAYER_CTX).get();
+        PlayerContext pc = ctx.channel().attr(Attrs.PLAYER_CTX).get();
         if (pc == null) {
             pc = new PlayerContext();
-            ctx.channel().attr(PLAYER_CTX).set(pc);
+            ctx.channel().attr(Attrs.PLAYER_CTX).set(pc);
             log.warn("player_context_missing_recreated ch={}", shortId(ctx.channel()));
         }
 
@@ -138,8 +134,8 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
         Player p1 = session.p1();
         Player p2 = session.p2();
 
-        p1.channel().attr(SESSION).set(session);
-        p2.channel().attr(SESSION).set(session);
+        p1.channel().attr(Attrs.SESSION).set(session);
+        p2.channel().attr(Attrs.SESSION).set(session);
 
         setState(p1.channel(), PlayerState.IN_GAME);
         setState(p2.channel(), PlayerState.IN_GAME);
@@ -153,7 +149,7 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
     }
 
     private void handleMove(ChannelHandlerContext ctx, PlayerContext pc, Move move) {
-        GameSession session = ctx.channel().attr(SESSION).get();
+        GameSession session = ctx.channel().attr(Attrs.SESSION).get();
         if (session == null) {
             log.warn("move_but_no_session ch={} nick={} -> back_to_wait_match",
                     shortId(ctx.channel()), safeNick(pc));
@@ -175,7 +171,7 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent e && e.state() == IdleState.READER_IDLE) {
 
-            PlayerContext pc = ctx.channel().attr(PLAYER_CTX).get();
+            PlayerContext pc = ctx.channel().attr(Attrs.PLAYER_CTX).get();
             if (pc == null) {
                 log.warn("idle_but_no_player_context ch={} -> close", shortId(ctx.channel()));
                 ctx.close();
@@ -198,7 +194,7 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
 
                 case IN_GAME -> {
                     log.info("idle_in_game ch={} nick={}", shortId(ctx.channel()), safeNick(pc));
-                    GameSession session = ctx.channel().attr(SESSION).get();
+                    GameSession session = ctx.channel().attr(Attrs.SESSION).get();
                     if (session != null) {
                         session.onIdle(me);
                     } else {
@@ -216,7 +212,7 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        PlayerContext pc = ctx.channel().attr(PLAYER_CTX).get();
+        PlayerContext pc = ctx.channel().attr(Attrs.PLAYER_CTX).get();
         if (pc == null) {
             log.info("client_disconnected ch={} (no player ctx)", shortId(ctx.channel()));
             return;
@@ -234,7 +230,7 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
         }
 
         if (pc.getState() == PlayerState.IN_GAME) {
-            GameSession session = ctx.channel().attr(SESSION).getAndSet(null);
+            GameSession session = ctx.channel().attr(Attrs.SESSION).getAndSet(null);
             if (session != null) {
                 session.onDisconnect(me);
             }
@@ -242,13 +238,13 @@ public final class RpsServerHandler extends SimpleChannelInboundHandler<String> 
     }
 
     private void setState(Channel ch, PlayerState state) {
-        PlayerContext pc = ch.attr(PLAYER_CTX).get();
+        PlayerContext pc = ch.attr(Attrs.PLAYER_CTX).get();
         if (pc != null) pc.setState(state);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        PlayerContext pc = ctx.channel().attr(PLAYER_CTX).get();
+        PlayerContext pc = ctx.channel().attr(Attrs.PLAYER_CTX).get();
         log.warn("channel_exception ch={} nick={} state={}",
                 shortId(ctx.channel()), pc == null ? "" : safeNick(pc), pc == null ? null : pc.getState(), cause);
         ctx.close();

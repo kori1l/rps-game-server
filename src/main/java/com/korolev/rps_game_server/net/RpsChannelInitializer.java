@@ -10,6 +10,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 
+import static com.korolev.rps_game_server.net.RpsServerHandler.IDLE_HANDLER_NAME;
+import static com.korolev.rps_game_server.net.RpsServerHandler.NICK_IDLE_SECONDS;
+
 @Component
 public class RpsChannelInitializer extends ChannelInitializer<Channel> {
 
@@ -22,7 +25,7 @@ public class RpsChannelInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel ch) {
         ch.pipeline()
-                .addLast("idle", new IdleStateHandler(180, 0, 0))
+                .addLast(IDLE_HANDLER_NAME, new IdleStateHandler(NICK_IDLE_SECONDS, 0, 0))
                 .addLast(new LineBasedFrameDecoder(256))
                 .addLast(new StringDecoder(StandardCharsets.UTF_8))
                 .addLast(new StringEncoder(StandardCharsets.UTF_8))

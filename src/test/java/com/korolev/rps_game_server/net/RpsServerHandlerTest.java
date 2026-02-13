@@ -11,7 +11,6 @@ import io.netty.handler.timeout.IdleStateEvent;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 
-import static com.korolev.rps_game_server.net.RpsServerHandler.PLAYER_CTX;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -33,7 +32,7 @@ class RpsServerHandlerTest {
 
         String out = takeAllOutbound(ch);
         assertTrue(out.contains("Enter your nickname"));
-        assertNotNull(ch.attr(PLAYER_CTX).get());
+        assertNotNull(ch.attr(Attrs.PLAYER_CTX).get());
         assertTrue(ch.isActive());
     }
 
@@ -106,7 +105,7 @@ class RpsServerHandlerTest {
 
         verify(mm, times(1)).tryMatch(any(Player.class));
 
-        PlayerContext pc = ch.attr(PLAYER_CTX).get();
+        PlayerContext pc = ch.attr(Attrs.PLAYER_CTX).get();
         assertEquals(PlayerState.WAIT_MATCH, pc.getState());
         assertEquals("kirill", pc.getNickname());
 
